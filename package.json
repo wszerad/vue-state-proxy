@@ -1,0 +1,19 @@
+{
+	"name": "vue-state-proxy",
+	"version": "1.0.0",
+	"description": "State manager based on Proxy",
+	"main": "index.js",
+	"scripts": {
+		"dev": "parcel ./pagetest/index.html --out-dir .dist",
+		"build": "parcel build ./pagetest/index.html --out-dir .dist"
+	},
+	"author": "Wszerad",
+	"license": "MIT",
+	"dependencies": {
+		"reflect-metadata": "^0.1.12"
+	},
+	"peerDependencies": {
+		"vue": "^2.5.17",
+		"typescript": "^3.1.6"
+	}
+}
