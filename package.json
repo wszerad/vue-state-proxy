@@ -1,19 +1,35 @@
 {
 	"name": "vue-state-proxy",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "State manager based on Proxy",
 	"main": "index.js",
 	"scripts": {
 		"dev": "parcel ./pagetest/index.html --out-dir .dist",
-		"build": "parcel build ./pagetest/index.html --out-dir .dist"
+		"test": "mocha --require ts-node/register tests/*.spec.ts",
+		"test:watch": "mocha --watch --require ts-node/register tests/*.spec.ts"
 	},
 	"author": "Wszerad",
 	"license": "MIT",
 	"dependencies": {
-		"reflect-metadata": "^0.1.12"
+		"reflect-metadata": "^0.1.12",
+		"vue": "^2.5.17"
 	},
 	"peerDependencies": {
-		"vue": "^2.5.17",
-		"typescript": "^3.1.6"
+		"typescript": "^3.1.6",
+		"vue": "^2.5.17"
+	},
+	"devDependencies": {
+		"@types/chai": "^4.1.7",
+		"@types/mocha": "^2.2.46",
+		"@types/node": "^10.5.2",
+		"@types/reflect-metadata": "^0.1.0",
+		"@types/vue": "^2.0.0",
+		"chai": "^4.1.7",
+		"mocha": "^5.2.0",
+		"reflect-metadata": "^0.1.12",
+		"ts-node": "^7.0.1",
+		"tsc": "^1.20150623.0",
+		"typescript": "^3.1.6",
+		"vue": "^2.5.17"
 	}
 }

@@ -1,6 +1,6 @@
 export const moduleTypeMeta = Symbol('module');
-export const silentMeta = Symbol('silent');
-export const originMeta = 'origin';
+export const isStoreMeta = Symbol('store');
+export const stateMeta = 'state';
 export const devtoolHook = typeof window !== 'undefined' && (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__;
 
 class MutationCollector {

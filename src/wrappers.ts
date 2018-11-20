@@ -1,4 +1,4 @@
-import { devtoolHook, mutation, mutationCollector, originMeta } from './utils';
+import { devtoolHook, mutation, mutationCollector, stateMeta } from './utils';
 
 export function afterEffectsWrapper(name: string, payload: any, state: any) {
 	const collector = mutationCollector.create(name, payload, state);
@@ -37,16 +37,14 @@ function stateWrapper(state: any, mutation: (key: string, value: any) => void, p
 		set(target, key, value) {
 			preset && preset();
 			target[key] = value;
+
+			if (key === stateMeta) {
+				return true;
+			}
+
 			mutation(key as string, value);
 
 			return true;
-		},
-		get(target, key) {
-			if (key === originMeta) {
-				return target;
-			}
-
-			return target[key];
 		}
 	});
 }
