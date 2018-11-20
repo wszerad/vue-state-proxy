@@ -8,6 +8,10 @@
 		"test": "mocha --require ts-node/register tests/*.spec.ts",
 		"test:watch": "mocha --watch --require ts-node/register tests/*.spec.ts"
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wszerad/vue-state-proxy"
+	},
 	"author": "Wszerad",
 	"license": "MIT",
 	"dependencies": {
