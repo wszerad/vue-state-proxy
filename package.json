@@ -1,6 +1,6 @@
 {
 	"name": "vue-state-proxy",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "State manager based on Proxy",
 	"main": "index.js",
 	"scripts": {

@@ -2,6 +2,7 @@ export interface StateOptions {
 	name: string;
 	computed: FunctionsMap;
 	methods: FunctionsMap;
+	data: () => any;
 }
 
 export interface TypesMap {

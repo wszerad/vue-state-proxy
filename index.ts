@@ -1,6 +1,5 @@
-import { devtoolHook } from '../vue-depot/src/devtools';
 import { State } from './src/State';
-import { stateMeta } from './src/utils';
+import { devtoolHook, stateMeta } from './src/utils';
 
 export {Type} from './src/Type.decorator';
 export {Store} from './src/Store.decorator';
@@ -11,7 +10,7 @@ export function createStateManager<T extends { new(...args: any[]): {} }>(Store:
 
 	if (devtoolHook) {
 		const devProxy = new Proxy(store, {
-			get(target, key) {
+			get(target: any, key) {
 				if (key === 'state') {
 					return target[stateMeta];
 				}
@@ -20,7 +19,7 @@ export function createStateManager<T extends { new(...args: any[]): {} }>(Store:
 		});
 		devtoolHook.emit('vuex:init', devProxy);
 		devtoolHook.on('vuex:travel-to-state', (targetState: any) => {
-			store[stateMeta] = targetState;
+			(store as any)[stateMeta] = targetState;
 		});
 	}
 

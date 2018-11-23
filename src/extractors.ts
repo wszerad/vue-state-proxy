@@ -16,14 +16,17 @@ function extractModules<T extends { new(...args: any[]): {} }>(constructor: T) {
 	return modules;
 }
 
-export function extractOptions<T extends { new(...args: any[]): {} }>(constructor: T): StateOptions {
-	const modules = extractModules(constructor);
+export function extractOptions<T extends { new(...args: any[]): {} }>(Constructor: T): StateOptions {
+	const modules = extractModules(Constructor);
+	const proto = Constructor.prototype;
 	const options: StateOptions = {
-		name: constructor.name,
+		data() {
+			return Object.assign({}, new proto.constructor());
+		},
+		name: Constructor.name,
 		computed: predefineGetters(modules),
 		methods: predefineMethods(),
 	};
-	const proto = constructor.prototype;
 
 	Object.getOwnPropertyNames(proto)
 		.forEach((key) => {

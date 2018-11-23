@@ -5,23 +5,16 @@ import { isStoreMeta } from './utils';
 import { storeWrapper } from './wrappers';
 
 export function Store() {
-	return function (constructor) {
-		const options = extractOptions(constructor);
+	return function (Constructor: any) {
+		const options = extractOptions(Constructor);
 
 		return class extends Vue {
 			constructor() {
-				super({
-					name: constructor.name,
-					data() {
-						return Object.assign({}, new constructor.prototype.constructor());
-					},
-					...options,
-				});
-
-				return storeWrapper(this, constructor.name);
+				super({...options});
+				return storeWrapper(this, options.name);
 			}
 
 			static [isStoreMeta] = true;
-		} as any
+		} as any;
 	}
 }

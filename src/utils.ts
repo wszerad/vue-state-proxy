@@ -1,12 +1,14 @@
 export const moduleTypeMeta = Symbol('module');
 export const isStoreMeta = Symbol('store');
-export const stateMeta = 'state';
+export const stateMeta = '__state';
 export const devtoolHook = typeof window !== 'undefined' && (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__;
 
+type MutationAction = () => void;
+
 class MutationCollector {
-	private timeout: number = null;
-	private mutation = null;
-	private mutationActionId = null;
+	private timeout: number | null = null;
+	private mutation: MutationAction | null = null;
+	private mutationActionId: string | null = null;
 
 	create(name: string, payload: any, state: any) {
 		const action = () => {mutation(name, payload, state)};
