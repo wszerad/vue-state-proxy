@@ -1,20 +1,20 @@
 import 'reflect-metadata';
-import Vue from 'vue';
-import { extractOptions } from './extractors';
-import { isStoreMeta } from './utils';
-import { storeWrapper } from './wrappers';
+import { extend } from './extensions';
+import {devtoolHook} from './utils';
+import {storeWrapper} from './wrappers';
 
 export function Store() {
 	return function (Constructor: any) {
-		const options = extractOptions(Constructor);
+		extend(Constructor);
 
-		return class extends Vue {
-			constructor() {
-				super({...options});
-				return storeWrapper(this, options.name);
-			}
+		if (devtoolHook) {
+			return new Proxy(Constructor, {
+				construct(target: any, args: any): object {
+					return storeWrapper(Reflect.construct(target, args), Constructor.name);
+				}
+			});
+		}
 
-			static [isStoreMeta] = true;
-		} as any;
+		return Constructor;
 	}
 }

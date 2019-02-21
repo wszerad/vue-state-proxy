@@ -1,8 +1,7 @@
 export interface StateOptions {
 	name: string;
-	computed: FunctionsMap;
-	methods: FunctionsMap;
-	data: () => any;
+	modules: TypesMap;
+	proto: FunctionsMap;
 }
 
 export interface TypesMap {

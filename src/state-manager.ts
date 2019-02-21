@@ -1,13 +1,13 @@
-import { FunctionsMap, TypesMap } from './types';
-import { isStoreMeta, stateMeta } from './utils';
+import {StateOptions} from './types';
+import {getStateMeta, isStoreMeta, originTargetMeta, setStateMeta} from './utils';
 
-export function predefineGetters(modules: TypesMap): FunctionsMap {
+export function predefineMethods(option: StateOptions) {
 	let getterOverwrite = 'var cache; return {';
 	let setterOverwrite = '';
 
-	Object.getOwnPropertyNames(modules)
+	Object.getOwnPropertyNames(option.modules)
 		.forEach((key) => {
-			const type = modules[key];
+			const type = option.modules[key];
 
 			if (Array.isArray(type)) {
 				const subtype = type[0];
@@ -36,21 +36,11 @@ export function predefineGetters(modules: TypesMap): FunctionsMap {
 	getterOverwrite += '}';
 	setterOverwrite += '';
 
-	const get = new Function(getterOverwrite);
 	const set = new Function('data', 'modules', setterOverwrite);
-
-	return {
-		[stateMeta]: {
-			get,
-			set(this: any, newState: any) {
-				set.call(this, newState, modules);
-			},
-		},
+	option.proto[setStateMeta] = function (newState) {
+		set.call(this[originTargetMeta], newState, option.modules);
 	};
-}
-
-export function predefineMethods(): FunctionsMap {
-	return {};
+	option.proto[getStateMeta] = new Function(getterOverwrite);
 }
 
 interface Filament {
@@ -61,11 +51,11 @@ interface Filament {
 }
 
 function arrayStateGetter(key: string) {
-	return `${key}: this['${key}'].map((i)=>i['${stateMeta}']),`;
+	return `${key}: this['${key}'].map((i)=>i['${getStateMeta}']()),`;
 }
 
 function stateGetter(key: string) {
-	return `${key}: this['${key}']['${stateMeta}'],`
+	return `${key}: this['${key}']['${getStateMeta}'](),`
 }
 
 function simpleTypeGetter(key: string) {
@@ -74,7 +64,7 @@ function simpleTypeGetter(key: string) {
 
 function singleSetter(key: string, parser: Function) {
 	const filament: Filament = {
-		stateKey: stateMeta,
+		stateKey: setStateMeta,
 		source: `data['${key}']`,
 		target: `this['${key}'] =`,
 		module: `new modules['${key}']`
@@ -89,7 +79,7 @@ function singleSetter(key: string, parser: Function) {
 
 function arraySetter(key: string, parser: Function) {
 	const filament: Filament = {
-		stateKey: stateMeta,
+		stateKey: setStateMeta,
 		source: 'data',
 		target: 'return',
 		module: `new modules['${key}'][0]`
@@ -98,7 +88,7 @@ function arraySetter(key: string, parser: Function) {
 	return `
 		if('${key}' in data){
 			this['${key}'] = data['${key}'].map((data) => {
-				return ${parser(filament)}
+				${parser(filament)}
 			});
 		}
 	`;
@@ -113,5 +103,5 @@ function objectTypeSetter(filament: Filament) {
 }
 
 function stateTypeSetter(filament: Filament) {
-	return `cache = ${filament.module}(); cache.state = ${filament.source}; ${filament.target} cache;`;
+	return `cache = ${filament.module}(); cache['${filament.stateKey}'](${filament.source}); ${filament.target} cache;`;
 }

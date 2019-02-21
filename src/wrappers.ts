@@ -1,4 +1,12 @@
-import { devtoolHook, mutation, mutationCollector, stateMeta } from './utils';
+import {
+	devtoolHook,
+	getStateMeta,
+	mutation,
+	mutationCollector,
+	originTargetMeta,
+	setStateMeta,
+	stateMeta
+} from './utils';
 
 export function afterEffectsWrapper(name: string, payload: any, state: any) {
 	const collector = mutationCollector.create(name, payload, state);
@@ -7,19 +15,26 @@ export function afterEffectsWrapper(name: string, payload: any, state: any) {
 }
 
 export function methodWrapper(storeName: string, name: string, method: Function) {
-	if (!devtoolHook) {
-		return method;
-	}
-
 	let counter = 0;
 
 	return function(...args) {
 		const num = counter++;
 		const label = `${storeName}.${name}(#${num})`;
-		const wrappedState = afterEffectsWrapper(label, args, this);
+		const wrappedState = afterEffectsWrapper(label, args, this[originTargetMeta]);
 
 		method.apply(wrappedState, ...args);
 	};
+}
+
+function stateWrapper(state: any, mutation: (key: string, value: any) => void, preset?: () => void) {
+	return new Proxy(state, {
+		set(target, key, value) {
+			preset && preset();
+			Reflect.set(target, key, value);
+			mutation(key as string, value);
+			return true;
+		}
+	});
 }
 
 export function storeWrapper(store: any, storeName: string) {
@@ -27,24 +42,26 @@ export function storeWrapper(store: any, storeName: string) {
 		return store;
 	}
 
-	return stateWrapper(store, (key, value) => {
-		mutation(`${storeName}.${key}`, value, store)
-	});
-}
+	return new Proxy(store, {
+		get(target, key) {
+			if (key === originTargetMeta) {
+				return target;
+			}
 
-function stateWrapper(state: any, mutation: (key: string, value: any) => void, preset?: () => void) {
-	return new Proxy(state, {
-		set(target, key, value) {
-			preset && preset();
-			target[key] = value;
+			if(key === stateMeta) {
+				return target[getStateMeta]();
+			}
 
+			return target[key];
+		},
+		set(target, key, value, receiver) {
 			if (key === stateMeta) {
+				receiver[setStateMeta](value);
 				return true;
 			}
 
-			mutation(key as string, value);
-
-			return true;
+			mutation(`${storeName}.${key as string}`, value, store);
+			return Reflect.set(target, key, value);
 		}
 	});
 }

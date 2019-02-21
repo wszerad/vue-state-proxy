@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { State } from '../src/State';
 import { Store } from '../src/Store.decorator';
 import { Type } from '../src/Type.decorator';
+import {createStateManager} from '../index';
 
 interface Product {
 	id: string;
@@ -96,7 +97,7 @@ class Root extends State {
 describe('Store', () => {
 
 	it('props mutations', () => {
-		const store = new Root();
+		const store = createStateManager(Root);
 		const newId = 'id2';
 
 		expect(store.id).to.equal('id1');

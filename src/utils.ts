@@ -1,6 +1,9 @@
+export const setStateMeta = 'setState';
+export const getStateMeta = 'getState';
+export const stateMeta = 'state';
+export const originTargetMeta = Symbol('origin');
 export const moduleTypeMeta = Symbol('module');
 export const isStoreMeta = Symbol('store');
-export const stateMeta = '__state';
 export const devtoolHook = typeof window !== 'undefined' && (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__;
 
 type MutationAction = () => void;

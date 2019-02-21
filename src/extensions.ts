@@ -1,7 +1,7 @@
-import { handleGetter, handleMethod } from './handlers';
-import { predefineGetters, predefineMethods } from './predefined';
+import { handleMethod } from './handlers';
 import { StateOptions, TypesMap } from './types';
-import { moduleTypeMeta } from './utils';
+import {isStoreMeta, moduleTypeMeta} from './utils';
+import {predefineMethods} from './state-manager';
 
 function extractModules<T extends { new(...args: any[]): {} }>(constructor: T) {
 	const proto = constructor.prototype;
@@ -16,16 +16,12 @@ function extractModules<T extends { new(...args: any[]): {} }>(constructor: T) {
 	return modules;
 }
 
-export function extractOptions<T extends { new(...args: any[]): {} }>(Constructor: T): StateOptions {
-	const modules = extractModules(Constructor);
+export function extend<T extends { new(...args: any[]): {} }>(Constructor: T) {
 	const proto = Constructor.prototype;
 	const options: StateOptions = {
-		data() {
-			return Object.assign({}, new proto.constructor());
-		},
 		name: Constructor.name,
-		computed: predefineGetters(modules),
-		methods: predefineMethods(),
+		modules: extractModules(Constructor),
+		proto
 	};
 
 	Object.getOwnPropertyNames(proto)
@@ -34,14 +30,10 @@ export function extractOptions<T extends { new(...args: any[]): {} }>(Constructo
 
 			if (!descriptor || key === 'constructor') {
 				return;
-			} else if (descriptor.set) {
-				throw new Error('Setters are not allowed');
 			} else if (typeof descriptor.value === 'function') {
 				handleMethod(options, key, descriptor);
-			} else if (descriptor.get) {
-				handleGetter(options, key, descriptor);
 			}
 		});
-
-	return options;
+	predefineMethods(options);
+	Constructor[isStoreMeta] = true;
 }
