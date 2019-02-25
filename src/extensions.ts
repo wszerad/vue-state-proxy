@@ -1,7 +1,7 @@
-import { handleMethod } from './handlers';
-import { StateOptions, TypesMap } from './types';
-import {isStoreMeta, moduleTypeMeta} from './utils';
-import {predefineMethods} from './state-manager';
+import { TypesMap } from './utils';
+import { devtoolHook, moduleTypeMeta } from './utils';
+import { predefineMethods } from './state-manager';
+import { methodWrapper } from './wrappers';
 
 function extractModules<T extends { new(...args: any[]): {} }>(constructor: T) {
 	const proto = constructor.prototype;
@@ -18,22 +18,20 @@ function extractModules<T extends { new(...args: any[]): {} }>(constructor: T) {
 
 export function extend<T extends { new(...args: any[]): {} }>(Constructor: T) {
 	const proto = Constructor.prototype;
-	const options: StateOptions = {
-		name: Constructor.name,
-		modules: extractModules(Constructor),
-		proto
-	};
+	const modules = extractModules(Constructor);
 
-	Object.getOwnPropertyNames(proto)
-		.forEach((key) => {
-			const descriptor = Object.getOwnPropertyDescriptor(proto, key);
+	if (devtoolHook) {
+		Object.getOwnPropertyNames(proto)
+			.forEach((key) => {
+				const descriptor = Object.getOwnPropertyDescriptor(proto, key);
 
-			if (!descriptor || key === 'constructor') {
-				return;
-			} else if (typeof descriptor.value === 'function') {
-				handleMethod(options, key, descriptor);
-			}
-		});
-	predefineMethods(options);
-	Constructor[isStoreMeta] = true;
+				if (!descriptor || key === 'constructor') {
+					return;
+				} else if (typeof descriptor.value === 'function') {
+					const method = descriptor.value;
+					proto[key] = methodWrapper(Constructor.name, key, method);
+				}
+			});
+	}
+	predefineMethods(proto, modules);
 }

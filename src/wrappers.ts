@@ -1,10 +1,7 @@
 import {
-	devtoolHook,
-	getStateMeta,
 	mutation,
 	mutationCollector,
 	originTargetMeta,
-	setStateMeta,
 	stateMeta
 } from './utils';
 
@@ -26,6 +23,36 @@ export function methodWrapper(storeName: string, name: string, method: Function)
 	};
 }
 
+export function storeWrapper(Constructor) {
+	return new Proxy(Constructor, {
+		construct(target: any, args: any): object {
+			const instance = Reflect.construct(target, args);
+			return new Proxy(instance, {
+				get(target, key) {
+					if (key === originTargetMeta) {
+						return target;
+					}
+
+					if(key === stateMeta) {
+						return target.getState();
+					}
+
+					return target[key];
+				},
+				set(target, key, value, receiver) {
+					if (key === stateMeta) {
+						receiver.setState(value);
+						return true;
+					}
+
+					mutation(`${Constructor.name}.${key as string}`, value, instance);
+					return Reflect.set(target, key, value);
+				}
+			});
+		}
+	});
+}
+
 function stateWrapper(state: any, mutation: (key: string, value: any) => void, preset?: () => void) {
 	return new Proxy(state, {
 		set(target, key, value) {
@@ -33,35 +60,6 @@ function stateWrapper(state: any, mutation: (key: string, value: any) => void, p
 			Reflect.set(target, key, value);
 			mutation(key as string, value);
 			return true;
-		}
-	});
-}
-
-export function storeWrapper(store: any, storeName: string) {
-	if (!devtoolHook) {
-		return store;
-	}
-
-	return new Proxy(store, {
-		get(target, key) {
-			if (key === originTargetMeta) {
-				return target;
-			}
-
-			if(key === stateMeta) {
-				return target[getStateMeta]();
-			}
-
-			return target[key];
-		},
-		set(target, key, value, receiver) {
-			if (key === stateMeta) {
-				receiver[setStateMeta](value);
-				return true;
-			}
-
-			mutation(`${storeName}.${key as string}`, value, store);
-			return Reflect.set(target, key, value);
 		}
 	});
 }

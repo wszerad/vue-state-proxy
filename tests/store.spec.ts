@@ -1,10 +1,8 @@
 import 'mocha';
-
 import { expect } from 'chai';
-import { State } from '../src/State';
 import { Store } from '../src/Store.decorator';
 import { Type } from '../src/Type.decorator';
-import {createStateManager} from '../index';
+import { createStateManager, State } from '../index';
 
 interface Product {
 	id: string;
@@ -106,7 +104,7 @@ describe('Store', () => {
 	});
 
 	it('async props mutations', async () => {
-		const store = new Root();
+		const store = createStateManager(Root);
 		const newId = 'id2';
 
 		await store.asyncChange(newId);
@@ -114,7 +112,7 @@ describe('Store', () => {
 	});
 
 	it('getters', () => {
-		const store = new Root();
+		const store = createStateManager(Root);
 
 		expect(store.cartProducts).to.eql([]);
 		store.addToCart(store.all[0]);
@@ -125,46 +123,47 @@ describe('Store', () => {
 	});
 
 	it('state getter', () => {
-		const store = new WithModules();
+		const store = createStateManager(WithModules);
 
 		expect(store.user).to.be.instanceOf(User);
-		expect(store.state.user).to.not.be.instanceOf(User);
+		expect(store.getState().user).to.not.be.instanceOf(User);
 	});
 
 	it('state setter', () => {
-		const store = new WithModules();
+		const store = createStateManager(WithModules);
 		const name = 'test name';
 
-		store.state = {
+		store.setState({
 			user: {
-				name,
+				name
 			},
-		};
+		});
+
 		expect(store.user.name).to.be.equal(name);
 		expect(store.user).to.be.instanceOf(User);
-		expect(store.state.user).to.not.be.instanceOf(User);
+		expect(store.getState().user).to.not.be.instanceOf(User);
 	});
 
 	it('module collection state getter', () => {
-		const store = new WithModules();
+		const store = createStateManager(WithModules);
 		expect(store.relations[0]).to.be.instanceOf(User);
-		expect(store.state.relations[0]).to.not.be.instanceOf(User);
-		expect(store.relations[0].state).to.not.be.instanceOf(User);
+		expect(store.getState().relations[0]).to.not.be.instanceOf(User);
+		expect(store.relations[0].getState()).to.not.be.instanceOf(User);
 	});
 
 	it('module collection state setter', () => {
-		const store = new WithModules();
+		const store = createStateManager(WithModules);
 		const name = 'nested name';
 		const oldRelation = store.relations[0];
 
-		store.state = {
+		store.setState({
 			relations: [{name}],
-		};
+		});
 
 		expect(store.relations.length).to.be.equal(1);
 		expect(store.relations[0]).to.be.instanceOf(User);
-		expect(store.state.relations[0]).to.not.be.instanceOf(User);
-		expect(store.relations[0].state).to.not.be.instanceOf(User);
+		expect(store.getState().relations[0]).to.not.be.instanceOf(User);
+		expect(store.relations[0].getState()).to.not.be.instanceOf(User);
 		expect(store.relations[0]).to.not.be.equal(oldRelation);
 	});
 });

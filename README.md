@@ -48,7 +48,7 @@ new Vue({
         <div>
             Name: {{store.firstName}} {{store.lastName}}
        		<br/>
-       		<span v-for="gun in store.guns" @click="gun.fire">
+       		<span v-for="gun in store.guns" @click="gun.fire()">
        		    {{gun.name}}({{gun.ammo}})
        		</span>
         </div>
@@ -63,9 +63,14 @@ new Vue({
 
 #### @Store()
 
-Convert given class to Vue component so new instance is in fact new Vue component
-with full support of features like smart getters, reactive props.
-Decorator also inject state getter/setter required for vue-devtools
+Decorates given class with setState and getState methods,
+in devMode also wrap methods to support devtools.
+
+##### .setState(data)
+Overwrite current state with data
+
+##### .getState()
+Return data snap from state
 
 #### @Type
 Required by parser to create proper class instances from raw state (JSON format)
@@ -73,9 +78,11 @@ Required by parser to create proper class instances from raw state (JSON format)
 IMPORTANT!!!
 Remember about providing props type for arrays, it is also needed by parser
 
-#### Hidden getter/setter .state
-Setter/getter to get or set raw-data model. Mainly used by vue-devtools and may be expensive.
-It support module instances casting so raw object will be converted to module object (but only for modules).
+#### createStateManager(storeConstructor)
+Creates object usable by Vue (with Vue.observable)
+
+IMPORTANT!!!
+Class methods are not bound to instance like in Vue class, so use in templates only with brackets
 
 #### Dev-tools
 

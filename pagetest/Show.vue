@@ -6,10 +6,10 @@
 	</div>
 </template>
 <script lang="ts">
-	import { createStateManager, Store, Type } from '..';
+	import {createStateManager, State, Store, Type} from '..';
 
 	@Store()
-	class Gun {
+	class Gun extends State {
 		name = 'glock';
 		ammo = 7;
 
@@ -19,7 +19,7 @@
 	}
 
 	@Store()
-	class StateManager {
+	class StateManager extends State {
 		firstName = 'James';
 		lastName = 'Bond';
 

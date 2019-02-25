@@ -1,8 +1,10 @@
-import {getStateMeta, setStateMeta} from './utils';
+import { isStateMeta } from './utils';
 
 export class State {
-	[setStateMeta](value: any): void {}
-	[getStateMeta](): this {
+	setState(value: any): void {}
+	getState(): any {
 		return this;
 	}
+
+	static [isStateMeta] = true;
 }

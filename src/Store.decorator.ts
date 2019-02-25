@@ -1,18 +1,14 @@
 import 'reflect-metadata';
 import { extend } from './extensions';
-import {devtoolHook} from './utils';
-import {storeWrapper} from './wrappers';
+import { devtoolHook, StateManagerConstructor } from './utils';
+import { storeWrapper } from './wrappers';
 
 export function Store() {
-	return function (Constructor: any) {
+	return function<T extends StateManagerConstructor> (Constructor: T) {
 		extend(Constructor);
 
 		if (devtoolHook) {
-			return new Proxy(Constructor, {
-				construct(target: any, args: any): object {
-					return storeWrapper(Reflect.construct(target, args), Constructor.name);
-				}
-			});
+            return storeWrapper(Constructor);
 		}
 
 		return Constructor;
