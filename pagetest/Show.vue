@@ -1,8 +1,20 @@
 <template>
-	<div class="Show" @click="store.rename()">
-		Name: {{store.firstName}} {{store.lastName}}
+	<div class="Show">
+		<span @click="store.rename()">Name: {{store.firstName}} {{store.lastName}}</span>
 		<br/>
-		<span v-for="gun in store.guns" @click="gun.fire()">{{gun.name}}({{gun.ammo}})</span>
+		<span @click="store.shotRemotely()">
+			Shot
+		</span>
+		<br/>
+		<a @click="store.addGun()">Add gun</a>
+		<template v-for="gun in store.guns">
+			<br/>
+			<br/>
+			<div>{{gun.name}}({{gun.ammo}}) hits: {{gun.hits}}</div>
+			<a @click="gun.shot()">Shot</a>
+			<br/>
+			<a @click="gun.longShot()">Long shot</a>
+		</template>
 	</div>
 </template>
 <script lang="ts">
@@ -12,9 +24,22 @@
 	class Gun extends State {
 		name = 'glock';
 		ammo = 7;
+		hits = 0;
 
 		fire() {
 			this.ammo--;
+		}
+
+		shot() {
+			this.fire();
+			this.hits++;
+		}
+
+		longShot() {
+			this.ammo--;
+			setTimeout(() => {
+				this.hits++;
+			}, 100);
 		}
 	}
 
@@ -23,15 +48,22 @@
 		firstName = 'James';
 		lastName = 'Bond';
 
-		rename() {
-			this.firstName += 'a';
+		addGun() {
+			this.guns.push(new Gun());
+		}
+
+		shotRemotely() {
+			this.addGun();
+			this.guns[0].fire();
 		}
 
 		@Type(Date)
 		birthday = new Date();
 
 		@Type(Gun)
-		guns: Gun[] = [new Gun()];
+		guns: Gun[] = [
+			new Gun()
+		];
 	}
 
 	const store = createStateManager(StateManager);

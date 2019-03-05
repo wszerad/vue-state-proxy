@@ -1,26 +1,28 @@
 {
-	"compileOnSave": false,
-	"compilerOptions": {
-		"sourceMap": true,
-		"declaration": false,
-		"moduleResolution": "node",
-		"experimentalDecorators":true,
-		"emitDecoratorMetadata": true,
-		"target": "es6",
-		"lib": [
-			"es2017",
-			"dom"
-		],
-		"typeRoots": [
-			"node_modules/@types"
-		],
-		"types": ["reflect-metadata"]
-	},
-	"exclude": [
-		"node_modules",
-		"testing/*",
-		"tests/*",
-		"pagetest/*",
-		".dist/*"
-	]
+  "compileOnSave": false,
+  "compilerOptions": {
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es6",
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "types": [
+      "reflect-metadata"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "testing/*",
+    "tests/*",
+    "pagetest/*",
+    ".dist/*"
+  ]
 }

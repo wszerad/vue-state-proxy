@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
-import { Store } from '../src/Store.decorator';
-import { Type } from '../src/Type.decorator';
+import { Store } from '../src/decorators/Store.decorator';
+import { Type } from '../src/decorators/Type.decorator';
 import { createStateManager, State } from '../index';
 
 interface Product {

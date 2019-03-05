@@ -1,26 +1,17 @@
-import { TypesMap } from './utils';
-import { devtoolHook, moduleTypeMeta } from './utils';
+import { moduleTypeMeta } from './utils/utils';
 import { predefineMethods } from './state-manager';
 import { methodWrapper } from './wrappers';
+import { devtoolHook } from './utils/devtool-hook';
 
 function extractModules<T extends { new(...args: any[]): {} }>(constructor: T) {
-	const proto = constructor.prototype;
-	const props = new proto.constructor() as any;
-	const modules: TypesMap = {};
-
-	Object.getOwnPropertyNames(props)
-		.forEach((key) => {
-			modules[key] = Reflect.getMetadata(moduleTypeMeta, proto, key);
-		});
-
-	return modules;
+	return Reflect.getMetadata(moduleTypeMeta, constructor.prototype) || new Map();
 }
 
 export function extend<T extends { new(...args: any[]): {} }>(Constructor: T) {
 	const proto = Constructor.prototype;
 	const modules = extractModules(Constructor);
 
-	if (devtoolHook) {
+	if (devtoolHook.isActive) {
 		Object.getOwnPropertyNames(proto)
 			.forEach((key) => {
 				const descriptor = Object.getOwnPropertyDescriptor(proto, key);
